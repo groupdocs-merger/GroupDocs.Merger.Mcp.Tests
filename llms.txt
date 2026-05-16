@@ -1,0 +1,44 @@
+# GroupDocs.Merger.Mcp.Tests
+
+Integration tests and deployment how-to guides for GroupDocs.Merger.Mcp — the MCP server that exposes GroupDocs.Merger for .NET to AI agents (Claude, Cursor, VS Code / GitHub Copilot, and other MCP-compatible clients).
+
+This repo validates the **published NuGet artifact** end-to-end and doubles as a reference for using it from every supported channel.
+
+## Primary repository
+
+- MCP server source + package: https://github.com/groupdocs-merger/GroupDocs.Merger.Mcp
+- NuGet package: https://www.nuget.org/packages/GroupDocs.Merger.Mcp
+- Docker images: ghcr.io/groupdocs-merger/merger-net-mcp and docker.io/groupdocs/merger-net-mcp
+
+## Deployment channels covered by how-to guides
+
+- how-to/01-install-from-nuget.md — dnx (recommended) + global dotnet tool
+- how-to/02-run-via-docker.md — container image + docker-compose
+- how-to/03-verify-mcp-registry.md — MCP registry discovery and NuGet.org auto-generated mcp.json
+- how-to/04-use-with-claude-desktop.md — Claude Desktop stdio config
+- how-to/05-use-with-vscode-copilot.md — VS Code / GitHub Copilot config with prompt-string inputs
+- how-to/06-run-integration-tests.md — run this repo's test suite locally and in CI
+
+## MCP tools exposed by the server
+
+- merge — merge 2–4 documents into a single file and save the result. Returns a saved-path message and download URL.
+- split — extract specific pages (1-based, comma-separated) from a document, saving each as its own file.
+- get_document_info — return file type, page count, size, and per-page dimensions of a document as JSON, without modifying it.
+
+## Environment variables
+
+- GROUPDOCS_MCP_STORAGE_PATH — base folder for input + output (defaults to current working directory)
+- GROUPDOCS_MCP_OUTPUT_PATH — optional, routes output files to a separate folder
+- GROUPDOCS_LICENSE_PATH — path to GroupDocs.Total.lic; omit for evaluation mode (merged / split output gets an evaluation watermark)
+
+## Key facts for AI agents
+
+- Testing the shipped NuGet, not the source. No project reference to the server.
+- Tool names on the wire are snake_case: merge, split, get_document_info.
+- Evaluation mode is non-blocking — Merger still produces the output, just watermarked. Tests pass with or without GROUPDOCS_LICENSE_PATH.
+- Real fixtures live in Files/ and are sourced from the upstream GroupDocs.Merger-for-.NET Examples repo. Drop new fixtures there and document provenance in Files/README.md.
+- Target framework is net10.0 only. Requires .NET 10 SDK for dnx.
+
+## License
+
+MIT — see LICENSE

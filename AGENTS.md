@@ -56,13 +56,13 @@ global.json                        ← pinned to .NET 10.0.100
 dotnet restore
 dotnet build -c Release
 
-# Run all 12 tests against the default package version (26.5.0)
+# Run all 12 tests against the default package version (26.5.1)
 dotnet test -c Release
 
 # Run against a specific published version
-dotnet test -c Release -p:McpPackageVersion=26.5.0
+dotnet test -c Release -p:McpPackageVersion=26.5.1
 # or
-MCP_PACKAGE_VERSION=26.5.0 dotnet test -c Release
+MCP_PACKAGE_VERSION=26.5.1 dotnet test -c Release
 
 # Unlock licensed-mode Split tests
 GROUPDOCS_LICENSE_PATH=/path/to/GroupDocs.Total.lic dotnet test -c Release

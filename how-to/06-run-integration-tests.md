@@ -14,7 +14,7 @@ release is healthy before promoting it, or gate CI on live smoke checks.
 ## Run locally
 
 ```bash
-# All 12 tests against the default pinned version (26.4.4)
+# All 12 tests against the default pinned version (26.7.0)
 dotnet test -c Release
 ```
 
@@ -22,17 +22,17 @@ dotnet test -c Release
 
 ```bash
 # Via MSBuild property
-dotnet test -c Release -p:McpPackageVersion=26.4.4
+dotnet test -c Release -p:McpPackageVersion=26.7.0
 
 # Or via env var
-MCP_PACKAGE_VERSION=26.4.4 dotnet test -c Release
+MCP_PACKAGE_VERSION=26.7.0 dotnet test -c Release
 ```
 
 Version resolution order (highest wins):
 
 1. `MCP_PACKAGE_VERSION` environment variable
 2. `McpPackageVersion` MSBuild property → baked into assembly metadata
-3. Default: `26.4.4`
+3. Default: `26.7.0`
 
 ## Unlock licensed-mode tests
 
@@ -177,7 +177,7 @@ mkdir -p /tmp/gd && cp some.pdf /tmp/gd/
   echo '{"jsonrpc":"2.0","method":"notifications/initialized"}'
   echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"split","arguments":{"file":{"filePath":"some.pdf"}}}}'
   sleep 5
-) | GROUPDOCS_MCP_STORAGE_PATH=/tmp/gd dnx GroupDocs.Merger.Mcp@26.4.4 --yes \
+) | GROUPDOCS_MCP_STORAGE_PATH=/tmp/gd dnx GroupDocs.Merger.Mcp@26.7.0 --yes \
     > stdout.log 2> stderr.log
 tail -50 stderr.log
 ```

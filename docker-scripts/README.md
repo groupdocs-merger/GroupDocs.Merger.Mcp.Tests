@@ -22,7 +22,7 @@ Numeric prefixes indicate the recommended running sequence.
 | `01_verify-setup.sh` | **Preflight** — Check Docker, .NET SDK, project structure, connectivity. |
 | `02_test-all-scenarios.sh` | **Main runner** — Runs the integration suite locally against the published NuGet (via `dnx`). |
 | `03_test-docker-compose.sh` | **SDK-container runner** — Runs the suite inside a `dotnet/sdk` container; still uses `dnx` to spawn the MCP server. |
-| `04_run-server-with-samples.sh` | **Interactive Docker MCP server** — Launches the published `merger-net-mcp` container with `sample-docs/` mounted, for ad-hoc smoke testing. |
+| `04_run-server-with-samples.sh` | **Interactive Docker MCP server** — Launches the published `merger-net-mcp` container with `Files/` mounted, for ad-hoc smoke testing. |
 | `helpers.sh` | Library — shared logging, Docker, .NET utilities (sourced, not run). |
 | `README.md` | This file. |
 
@@ -55,14 +55,14 @@ brew install docker dotnet git
 # Run tests in Docker containers (also defaults to latest)
 ./03_test-docker-compose.sh
 
-# Try the published Docker MCP image with the repo's sample-docs mounted
+# Try the published Docker MCP image with the repo's Files/ mounted
 ./04_run-server-with-samples.sh
 
 # Run specific test scenario
 ./02_test-all-scenarios.sh --filter Merge
 
 # Pin to a specific package version (reproducible / CI runs)
-./02_test-all-scenarios.sh --version 26.5.1
+./02_test-all-scenarios.sh --version 26.7.0
 
 # Use license for licensed-mode tests
 ./02_test-all-scenarios.sh --license /path/to/GroupDocs.Total.lic
@@ -81,7 +81,7 @@ Usage:
 Options:
   --version VERSION       Test specific package version (default: latest)
                           Use "latest" or omit to track nuget.org's most recent
-                          stable release. Pin (e.g. "26.5.1") for reproducible
+                          stable release. Pin (e.g. "26.7.0") for reproducible
                           / shared / CI runs.
   --filter PATTERN        Run only tests matching pattern
   --no-build              Skip local .NET build, use pre-built
@@ -89,14 +89,14 @@ Options:
   --help                  Show help message
 
 Examples:
-  # All 12 tests against latest stable (default)
+  # All 19 test cases against latest stable (default)
   ./02_test-all-scenarios.sh
 
   # Only Merge tests
   ./02_test-all-scenarios.sh --filter Merge
 
-  # Pin to 26.5.1 with custom license
-  ./02_test-all-scenarios.sh --version 26.5.1 --license /path/to/lic
+  # Pin to 26.7.0 with custom license
+  ./02_test-all-scenarios.sh --version 26.7.0 --license /path/to/lic
 
   # Skip rebuild (use cached binaries)
   ./02_test-all-scenarios.sh --no-build --filter ToolDiscovery
@@ -110,9 +110,9 @@ Examples:
 
 **Output:**
 ```
-Passed  ToolDiscoveryTests.ServerInfo_AdvertisesGroupDocsMergerMcp
-Passed  MergeTests.Merge_AuthoredPdf_ReturnsFileFormatAndProperties
-Passed  ErrorHandlingTests.Merge_UnknownFile_ReturnsErrorListingAvailableFiles
+Passed  ToolDiscoveryTests.ListTools_ExposesAllThreeMergerTools
+Passed  MergeTests.Merge_TwoDocxFiles_ProducesMergedFile
+Passed  ErrorHandlingTests.GetDocumentInfo_UnknownFile_ReturnsErrorListingAvailableFiles
 ...
 ✓ All integration test scenarios completed!
 ```
@@ -130,7 +130,7 @@ Usage:
 Options:
   --version VERSION       Test specific package version (default: latest)
                           Use "latest" or omit to track nuget.org's most recent
-                          stable release. Pin (e.g. "26.5.1") for reproducible
+                          stable release. Pin (e.g. "26.7.0") for reproducible
                           / shared / CI runs.
   --filter PATTERN        Run only tests matching pattern
   --license PATH          Path to GroupDocs license file
@@ -142,7 +142,7 @@ Examples:
   ./03_test-docker-compose.sh
 
   # Pin to a specific version
-  ./03_test-docker-compose.sh --version 26.5.1
+  ./03_test-docker-compose.sh --version 26.7.0
 
   # Keep containers for inspection
   ./03_test-docker-compose.sh --keep
@@ -150,7 +150,7 @@ Examples:
 
 **What it does:**
 1. ✅ Generates isolated docker-compose.yml
-2. ✅ Mounts sample-docs volume (read-only)
+2. ✅ Mounts the Files/ volume (read-only)
 3. ✅ Runs tests in .NET SDK 10.0 container
 4. ✅ Auto-cleans resources (unless `--keep` is set)
 
@@ -160,13 +160,13 @@ services:
   merger-server:
     image: ghcr.io/groupdocs-merger/merger-net-mcp:latest
     volumes:
-      - sample-docs-volume:/data:ro
+      - files-volume:/data:ro
 
   test-runner:
     image: mcr.microsoft.com/dotnet/sdk:10.0-alpine
     volumes:
       - workspace-volume:/workspace:ro
-      - sample-docs-volume:/data:ro
+      - files-volume:/data:ro
     depends_on:
       - merger-server
 ```
@@ -175,22 +175,24 @@ services:
 
 ## 📂 Sample Documents
 
-The `sample-docs/` folder contains test fixtures:
+The `Files/` folder contains the test fixtures (real samples sourced from the
+GroupDocs.Merger-for-.NET Examples repo — see `Files/README.md` for provenance):
 
 ```
-sample-docs/
-  ├── document.pdf          (optional: real PDF for testing)
-  ├── image.jpg             (optional: real JPEG for testing)
-  └── ...
+Files/
+  ├── sample.pdf, sample_simple.pdf, sample_protected.pdf
+  ├── sample.docx, sample2.docx, sample3.docx, sample-10-pages.docx
+  ├── sample.pptx, sample.xlsx
+  └── README.md            (provenance)
 ```
 
-**Without sample-docs:** Tests use synthetic fixtures (minimal valid PDF + JPEG)
-**With sample-docs:** Tests also validate real-world document behavior
+**Real samples present (default):** merge / split / get-document-info tests run against real documents.
+**Sample missing:** the corresponding test skips itself gracefully; a synthetic 1-page PDF still exercises the core paths.
 
 **To add your own:**
 ```bash
-cp my-document.pdf ../sample-docs/
-cp my-image.jpg ../sample-docs/
+cp my-document.pdf ../Files/
+cp my-workbook.xlsx ../Files/
 ./02_test-all-scenarios.sh
 ```
 
@@ -201,7 +203,7 @@ cp my-image.jpg ../sample-docs/
 ### Using a License
 
 ```bash
-# Unlock licensed-mode Split tests
+# Provide a license to suppress the evaluation watermark on merged / split output
 export GROUPDOCS_LICENSE_PATH=/path/to/GroupDocs.Total.lic
 ./02_test-all-scenarios.sh
 
@@ -211,10 +213,12 @@ export GROUPDOCS_LICENSE_PATH=/path/to/GroupDocs.Total.lic
 
 ### Evaluation Mode (Default)
 
-Without a license:
-- `Split_InEvaluationMode_ReturnsErrorResponse` — ✅ Passes (asserts graceful error)
-- `Split_Jpeg_WritesCleanOutput_Licensed` — ⏭️ Skipped
-- `Split_FollowUpReadOfCleanedFile_Succeeds_Licensed` — ⏭️ Skipped
+GroupDocs.Merger does not block `Merge` / `Split` in evaluation mode — every
+tool still produces output, so **all tests pass without a license**. The only
+difference is that unlicensed output may carry an evaluation watermark (the
+tools prefix their response with `[Evaluation mode] Output may include
+watermarks.`). Providing a license removes the watermark; no test is skipped
+for license reasons.
 
 License file must be readable by the process running the tests.
 
@@ -226,11 +230,12 @@ Run individual test suites with `--filter`:
 
 | Filter | Tests | Command |
 |--------|-------|---------|
-| `ToolDiscovery` | 4 tests | `./02_test-all-scenarios.sh --filter ToolDiscovery` |
+| `ToolDiscovery` | 3 tests | `./02_test-all-scenarios.sh --filter ToolDiscovery` |
 | `Merge` | 3 tests | `./02_test-all-scenarios.sh --filter Merge` |
 | `Split` | 3 tests | `./02_test-all-scenarios.sh --filter Split` |
+| `GetDocumentInfo` | 7 cases | `./02_test-all-scenarios.sh --filter GetDocumentInfo` |
 | `ErrorHandling` | 3 tests | `./02_test-all-scenarios.sh --filter ErrorHandling` |
-| (default) | 12 tests | `./02_test-all-scenarios.sh` |
+| (default) | 19 cases | `./02_test-all-scenarios.sh` |
 
 **Example: Quick validation (only discovery)**
 ```bash
@@ -280,7 +285,7 @@ docker compose -f docker-compose.test.yml down -v
 ### Test Multiple Versions
 
 ```bash
-for version in 26.4.3 26.5.1 26.5.1 latest; do
+for version in 26.5.1 26.7.0 latest; do
   echo "Testing version $version..."
   ./02_test-all-scenarios.sh --version $version || exit 1
 done
@@ -397,28 +402,31 @@ export GROUPDOCS_LICENSE_PATH=$(pwd)/license/GroupDocs.Total.lic
 ### All Tests Pass
 ```
 Passed  ToolDiscoveryTests.ServerInfo_AdvertisesGroupDocsMergerMcp
-Passed  ToolDiscoveryTests.ListTools_ExposesReadAndSplit
+Passed  ToolDiscoveryTests.ListTools_ExposesAllThreeMergerTools
 Passed  ToolDiscoveryTests.AllTools_HaveNonEmptyDescriptionAndInputSchema
-Passed  MergeTests.Merge_AuthoredPdf_ReturnsFileFormatAndProperties
-Passed  MergeTests.Merge_Jpeg_ReturnsJpegFormat
-Passed  MergeTests.Merge_AuthoredPdf_SurfacesKnownAuthorValue
-Passed  SplitTests.Split_InEvaluationMode_ReturnsErrorResponse
-Passed  SplitTests.Split_Jpeg_WritesCleanOutput_Licensed
-Passed  SplitTests.Split_FollowUpReadOfCleanedFile_Succeeds_Licensed
-Passed  ErrorHandlingTests.Merge_UnknownFile_ReturnsErrorListingAvailableFiles
-Passed  ErrorHandlingTests.Merge_CorruptedFile_DoesNotCrashServer
+Passed  MergeTests.Merge_TwoDocxFiles_ProducesMergedFile
+Passed  MergeTests.Merge_ThreeDocxFiles_ProducesMergedFile
+Passed  MergeTests.Merge_TwoPdfFiles_ProducesMergedFile
+Passed  SplitTests.Split_TenPageDocx_ExtractsRequestedPages
+Passed  SplitTests.Split_UnparseablePages_ReturnsGracefulMessage
+Passed  SplitTests.Split_ProtectedPdf_AcceptsPasswordArgument
+Passed  GetDocumentInfoTests.GetDocumentInfo_SyntheticPdf_ReturnsOnePageJson
+Passed  GetDocumentInfoTests.GetDocumentInfo_RealSample_ReturnsValidJsonStructure
+Passed  GetDocumentInfoTests.GetDocumentInfo_TenPageDocx_ReportsPositivePageCount
+Passed  ErrorHandlingTests.GetDocumentInfo_UnknownFile_ReturnsErrorListingAvailableFiles
+Passed  ErrorHandlingTests.GetDocumentInfo_CorruptedFile_DoesNotCrashServer
 Passed  ErrorHandlingTests.PasswordParameter_IsAcceptedByTool
 
-Total: 12, Passed: 12, Time: ~13s
+Total: 19, Passed: 19, Time: ~13s
 
 ✓ All integration test scenarios completed!
 ```
 
-### Sample-Docs Detected
+### Real Samples Detected
 ```
-✓ Found 5 sample documents
-  /workspace/sample-docs/invoice.pdf (245 KB)
-  /workspace/sample-docs/photo.jpg (1.2 MB)
+✓ Found sample documents in Files/
+  /workspace/Files/sample.pdf
+  /workspace/Files/sample-10-pages.docx
   ...
 ```
 
@@ -450,7 +458,7 @@ Total: 12, Passed: 12, Time: ~13s
 2. **For CI/CD:** Use `02_test-all-scenarios.sh` (local is faster than Docker)
 3. **For debugging:** Use `03_test-docker-compose.sh --keep` to inspect containers
 4. **For multiple versions:** Use a loop with `--version` flag
-5. **For sample docs:** Drop files in `sample-docs/`, they're auto-mounted
+5. **For sample docs:** Drop files in `Files/`, they're auto-mounted
 6. **For licenses:** Store in a secure location, pass via env var in CI
 
 ---

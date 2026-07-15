@@ -30,7 +30,7 @@ Create the file at the root of your workspace:
     "groupdocs-merger": {
       "type": "stdio",
       "command": "dnx",
-      "args": ["GroupDocs.Merger.Mcp@26.4.4", "--yes"],
+      "args": ["GroupDocs.Merger.Mcp@26.7.0", "--yes"],
       "env": {
         "GROUPDOCS_MCP_STORAGE_PATH": "${input:storage_path}"
       }
@@ -59,7 +59,7 @@ value.
       "args": [
         "run", "--rm", "-i",
         "-v", "${workspaceFolder}/documents:/data",
-        "ghcr.io/groupdocs-merger/merger-net-mcp:26.4.4"
+        "ghcr.io/groupdocs-merger/merger-net-mcp:26.7.0"
       ]
     }
   }
@@ -92,7 +92,7 @@ editing `mcp.json`:
 1. Reload the window: `Cmd/Ctrl+Shift+P` → **"Developer: Reload Window"**.
 2. Open Copilot chat.
 3. Click the tools / MCP icon — `groupdocs-merger` should appear with
-   `merge` and `split` listed.
+   `merge`, `split`, and `get_document_info` listed.
 4. If you used `inputs`, VS Code prompts for `storage_path` on first use and
    caches the answer for the session.
 

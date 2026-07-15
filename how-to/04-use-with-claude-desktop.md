@@ -27,7 +27,7 @@ Create the file if it doesn't exist.
     "groupdocs-merger": {
       "type": "stdio",
       "command": "dnx",
-      "args": ["GroupDocs.Merger.Mcp@26.4.4", "--yes"],
+      "args": ["GroupDocs.Merger.Mcp@26.7.0", "--yes"],
       "env": {
         "GROUPDOCS_MCP_STORAGE_PATH": "/Users/you/Documents"
       }
@@ -76,7 +76,7 @@ where dnx.cmd        # Windows (from cmd)
       "args": [
         "run", "--rm", "-i",
         "-v", "/Users/you/Documents:/data",
-        "ghcr.io/groupdocs-merger/merger-net-mcp:26.4.4"
+        "ghcr.io/groupdocs-merger/merger-net-mcp:26.7.0"
       ]
     }
   }

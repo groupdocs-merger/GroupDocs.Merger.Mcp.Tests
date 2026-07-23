@@ -7,8 +7,7 @@ namespace GroupDocs.Merger.Mcp.IntegrationTests;
 /// Error-handling checks driven through `GetDocumentInfo` — a single-file
 /// tool, the natural fit for unknown-file / corrupted-file / password-param
 /// assertions.
-[Collection(McpServerCollection.Name)]
-public class ErrorHandlingTests
+public class ErrorHandlingTests : IClassFixture<McpServerFixture>
 {
     private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;

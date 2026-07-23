@@ -7,8 +7,7 @@ namespace GroupDocs.Merger.Mcp.IntegrationTests;
 /// Merge combines 2–4 same-format documents into one file saved as
 /// `<first>_merged.<ext>`. Evaluation mode may add watermarks but still
 /// produces the merged file.
-[Collection(McpServerCollection.Name)]
-public class MergeTests
+public class MergeTests : IClassFixture<McpServerFixture>
 {
     private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;

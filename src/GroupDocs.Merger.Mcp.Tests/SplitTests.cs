@@ -7,8 +7,7 @@ namespace GroupDocs.Merger.Mcp.IntegrationTests;
 /// Split extracts specific 1-based pages from a document, saving each as its
 /// own file. `sample-10-pages.docx` is the upstream Examples canonical
 /// 10-page split target.
-[Collection(McpServerCollection.Name)]
-public class SplitTests
+public class SplitTests : IClassFixture<McpServerFixture>
 {
     private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;

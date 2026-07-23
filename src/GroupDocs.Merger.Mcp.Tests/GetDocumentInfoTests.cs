@@ -7,8 +7,7 @@ namespace GroupDocs.Merger.Mcp.IntegrationTests;
 
 /// GetDocumentInfo returns file type / page count / size / per-page
 /// dimensions as JSON without modifying the input.
-[Collection(McpServerCollection.Name)]
-public class GetDocumentInfoTests
+public class GetDocumentInfoTests : IClassFixture<McpServerFixture>
 {
     private readonly McpServerFixture _fixture;
     private readonly ITestOutputHelper _output;
